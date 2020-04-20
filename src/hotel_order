@@ -11,6 +11,7 @@ update_time datetime not null comment '最后更新时间',
 primary key (id),
 unique key `user_name_unique` (`username`) using btree
 )default charset =utf8;
+
 create table hotel_hotels(
     id int(11) not null auto_increment comment '酒店id',
     name varchar(50) default null comment '酒店名称',
