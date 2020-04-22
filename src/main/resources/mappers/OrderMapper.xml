@@ -10,6 +10,8 @@
       <arg column="hotel_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="payment" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
       <arg column="payment_type" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="checkIn_date" jdbcType="DATE" javaType="java.util.Date" />
+      <arg column="leave_date" jdbcType="DATE" javaType="java.util.Date" />
       <arg column="status" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="payment_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
       <arg column="end_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
@@ -19,8 +21,8 @@
     </constructor>
   </resultMap>
   <sql id="Base_Column_List" >
-    id, order_no, user_id, user_detils_id, hotel_id, payment, payment_type, status, payment_time, 
-    end_time, close_time, create_time, update_time
+    id, order_no, user_id, user_detils_id, hotel_id, payment, payment_type, checkIn_date, 
+    leave_date, status, payment_time, end_time, close_time, create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -35,14 +37,16 @@
   <insert id="insert" parameterType="com.hotel.pojo.Order" >
     insert into hotel_order (id, order_no, user_id, 
       user_detils_id, hotel_id, payment, 
-      payment_type, status, payment_time, 
-      end_time, close_time, create_time, 
-      update_time)
+      payment_type, checkIn_date, leave_date, 
+      status, payment_time, end_time, 
+      close_time, create_time, update_time
+      )
     values (#{id,jdbcType=INTEGER}, #{orderNo,jdbcType=BIGINT}, #{userId,jdbcType=INTEGER}, 
       #{userDetilsId,jdbcType=INTEGER}, #{hotelId,jdbcType=INTEGER}, #{payment,jdbcType=DECIMAL}, 
-      #{paymentType,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{paymentTime,jdbcType=TIMESTAMP}, 
-      #{endTime,jdbcType=TIMESTAMP}, #{closeTime,jdbcType=TIMESTAMP}, now(),
-      now())
+      #{paymentType,jdbcType=INTEGER}, CURDATE(), #{leaveDate,jdbcType=DATE},
+      #{status,jdbcType=INTEGER}, #{paymentTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, 
+      #{closeTime,jdbcType=TIMESTAMP}, now(), now()
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.hotel.pojo.Order" >
     insert into hotel_order
@@ -67,6 +71,12 @@
       </if>
       <if test="paymentType != null" >
         payment_type,
+      </if>
+      <if test="checkinDate != null" >
+        checkIn_date,
+      </if>
+      <if test="leaveDate != null" >
+        leave_date,
       </if>
       <if test="status != null" >
         status,
@@ -109,6 +119,12 @@
       <if test="paymentType != null" >
         #{paymentType,jdbcType=INTEGER},
       </if>
+      <if test="checkinDate != null" >
+        CURDATE(),
+      </if>
+      <if test="leaveDate != null" >
+        #{leaveDate,jdbcType=DATE},
+      </if>
       <if test="status != null" >
         #{status,jdbcType=INTEGER},
       </if>
@@ -150,6 +166,12 @@
       <if test="paymentType != null" >
         payment_type = #{paymentType,jdbcType=INTEGER},
       </if>
+      <if test="checkinDate != null" >
+        checkIn_date = CURDATE(),
+      </if>
+      <if test="leaveDate != null" >
+        leave_date = #{leaveDate,jdbcType=DATE},
+      </if>
       <if test="status != null" >
         status = #{status,jdbcType=INTEGER},
       </if>
@@ -179,6 +201,8 @@
       hotel_id = #{hotelId,jdbcType=INTEGER},
       payment = #{payment,jdbcType=DECIMAL},
       payment_type = #{paymentType,jdbcType=INTEGER},
+      checkIn_date = CURDATE(),
+      leave_date = #{leaveDate,jdbcType=DATE},
       status = #{status,jdbcType=INTEGER},
       payment_time = #{paymentTime,jdbcType=TIMESTAMP},
       end_time = #{endTime,jdbcType=TIMESTAMP},

@@ -18,6 +18,10 @@ public class Order {
 
     private Integer paymentType;
 
+    private Date checkinDate;
+
+    private Date leaveDate;
+
     private Integer status;
 
     private Date paymentTime;
@@ -30,7 +34,7 @@ public class Order {
 
     private Date updateTime;
 
-    public Order(Integer id, Long orderNo, Integer userId, Integer userDetilsId, Integer hotelId, BigDecimal payment, Integer paymentType, Integer status, Date paymentTime, Date endTime, Date closeTime, Date createTime, Date updateTime) {
+    public Order(Integer id, Long orderNo, Integer userId, Integer userDetilsId, Integer hotelId, BigDecimal payment, Integer paymentType, Date checkinDate, Date leaveDate, Integer status, Date paymentTime, Date endTime, Date closeTime, Date createTime, Date updateTime) {
         this.id = id;
         this.orderNo = orderNo;
         this.userId = userId;
@@ -38,6 +42,8 @@ public class Order {
         this.hotelId = hotelId;
         this.payment = payment;
         this.paymentType = paymentType;
+        this.checkinDate = checkinDate;
+        this.leaveDate = leaveDate;
         this.status = status;
         this.paymentTime = paymentTime;
         this.endTime = endTime;
@@ -104,6 +110,22 @@ public class Order {
 
     public void setPaymentType(Integer paymentType) {
         this.paymentType = paymentType;
+    }
+
+    public Date getCheckinDate() {
+        return checkinDate;
+    }
+
+    public void setCheckinDate(Date checkinDate) {
+        this.checkinDate = checkinDate;
+    }
+
+    public Date getLeaveDate() {
+        return leaveDate;
+    }
+
+    public void setLeaveDate(Date leaveDate) {
+        this.leaveDate = leaveDate;
     }
 
     public Integer getStatus() {

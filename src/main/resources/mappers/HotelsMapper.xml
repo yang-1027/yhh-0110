@@ -1,56 +1,59 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.hotel.dao.RoomMapper" >
-  <resultMap id="BaseResultMap" type="com.hotel.pojo.Room" >
+<mapper namespace="com.hotel.dao.HotelsMapper" >
+  <resultMap id="BaseResultMap" type="com.hotel.pojo.Hotels" >
     <constructor >
       <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="type_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="user_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="status" jdbcType="BIT" javaType="java.lang.Boolean" />
       <arg column="main_image" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="sub_images" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="detail" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="price" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
-      <arg column="stock" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="status" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="sort_order" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="star" jdbcType="REAL" javaType="java.lang.Float" />
       <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
       <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
     </constructor>
   </resultMap>
   <sql id="Base_Column_List" >
-    id, type_id, name, main_image, sub_images, detail, price, stock, status, create_time, 
+    id, name, user_id, status, main_image, sub_images, detail, sort_order, star, create_time, 
     update_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
     <include refid="Base_Column_List" />
-    from hotel_rooms
+    from hotel_hotels
     where id = #{id,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
-    delete from hotel_rooms
+    delete from hotel_hotels
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.hotel.pojo.Room" >
-    insert into hotel_rooms (id, type_id, name, 
-      main_image, sub_images, detail, 
-      price, stock, status, 
+  <insert id="insert" parameterType="com.hotel.pojo.Hotels" >
+    insert into hotel_hotels (id, name, user_id, 
+      status, main_image, sub_images, 
+      detail, sort_order, star, 
       create_time, update_time)
-    values (#{id,jdbcType=INTEGER}, #{typeId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
-      #{mainImage,jdbcType=VARCHAR}, #{subImages,jdbcType=VARCHAR}, #{detail,jdbcType=VARCHAR}, 
-      #{price,jdbcType=DECIMAL}, #{stock,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}, 
+      #{status,jdbcType=BIT}, #{mainImage,jdbcType=VARCHAR}, #{subImages,jdbcType=VARCHAR}, 
+      #{detail,jdbcType=VARCHAR}, #{sortOrder,jdbcType=INTEGER}, #{star,jdbcType=REAL}, 
       now(), now())
   </insert>
-  <insert id="insertSelective" parameterType="com.hotel.pojo.Room" >
-    insert into hotel_rooms
+  <insert id="insertSelective" parameterType="com.hotel.pojo.Hotels" >
+    insert into hotel_hotels
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
         id,
       </if>
-      <if test="typeId != null" >
-        type_id,
-      </if>
       <if test="name != null" >
         name,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="status != null" >
+        status,
       </if>
       <if test="mainImage != null" >
         main_image,
@@ -61,14 +64,11 @@
       <if test="detail != null" >
         detail,
       </if>
-      <if test="price != null" >
-        price,
+      <if test="sortOrder != null" >
+        sort_order,
       </if>
-      <if test="stock != null" >
-        stock,
-      </if>
-      <if test="status != null" >
-        status,
+      <if test="star != null" >
+        star,
       </if>
       <if test="createTime != null" >
         create_time,
@@ -81,11 +81,14 @@
       <if test="id != null" >
         #{id,jdbcType=INTEGER},
       </if>
-      <if test="typeId != null" >
-        #{typeId,jdbcType=INTEGER},
-      </if>
       <if test="name != null" >
         #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
       </if>
       <if test="mainImage != null" >
         #{mainImage,jdbcType=VARCHAR},
@@ -96,14 +99,11 @@
       <if test="detail != null" >
         #{detail,jdbcType=VARCHAR},
       </if>
-      <if test="price != null" >
-        #{price,jdbcType=DECIMAL},
+      <if test="sortOrder != null" >
+        #{sortOrder,jdbcType=INTEGER},
       </if>
-      <if test="stock != null" >
-        #{stock,jdbcType=INTEGER},
-      </if>
-      <if test="status != null" >
-        #{status,jdbcType=INTEGER},
+      <if test="star != null" >
+        #{star,jdbcType=REAL},
       </if>
       <if test="createTime != null" >
         now(),
@@ -113,14 +113,17 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.hotel.pojo.Room" >
-    update hotel_rooms
+  <update id="updateByPrimaryKeySelective" parameterType="com.hotel.pojo.Hotels" >
+    update hotel_hotels
     <set >
-      <if test="typeId != null" >
-        type_id = #{typeId,jdbcType=INTEGER},
-      </if>
       <if test="name != null" >
         name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
       </if>
       <if test="mainImage != null" >
         main_image = #{mainImage,jdbcType=VARCHAR},
@@ -131,14 +134,11 @@
       <if test="detail != null" >
         detail = #{detail,jdbcType=VARCHAR},
       </if>
-      <if test="price != null" >
-        price = #{price,jdbcType=DECIMAL},
+      <if test="sortOrder != null" >
+        sort_order = #{sortOrder,jdbcType=INTEGER},
       </if>
-      <if test="stock != null" >
-        stock = #{stock,jdbcType=INTEGER},
-      </if>
-      <if test="status != null" >
-        status = #{status,jdbcType=INTEGER},
+      <if test="star != null" >
+        star = #{star,jdbcType=REAL},
       </if>
       <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
@@ -149,25 +149,25 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.hotel.pojo.Room" >
-    update hotel_rooms
-    set type_id = #{typeId,jdbcType=INTEGER},
-      name = #{name,jdbcType=VARCHAR},
+  <update id="updateByPrimaryKey" parameterType="com.hotel.pojo.Hotels" >
+    update hotel_hotels
+    set name = #{name,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=INTEGER},
+      status = #{status,jdbcType=BIT},
       main_image = #{mainImage,jdbcType=VARCHAR},
       sub_images = #{subImages,jdbcType=VARCHAR},
       detail = #{detail,jdbcType=VARCHAR},
-      price = #{price,jdbcType=DECIMAL},
-      stock = #{stock,jdbcType=INTEGER},
-      status = #{status,jdbcType=INTEGER},
+      sort_order = #{sortOrder,jdbcType=INTEGER},
+      star = #{star,jdbcType=REAL},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = now()
     where id = #{id,jdbcType=INTEGER}
   </update>
 
-  <select id="selectRoomList" resultMap="BaseResultMap">
+  <select id="selectHotelRoomsByHotelId" resultMap="BaseResultMap" parameterType="int">
     select
     <include refid="Base_Column_List"></include>
-    from hotel_rooms
-    order by id asc
+    from hotel_rooms,hotel_hotels
+    where type_id=hotel_hotels.id
   </select>
 </mapper>

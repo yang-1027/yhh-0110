@@ -70,6 +70,8 @@ create table hotel_order(
     hotel_id int(11) default null comment '酒店id',
     payment decimal(20,2) default null comment '实际付款',
     payment_type int(4) default null comment '支付类型1-在线支付',
+    checkIn_date date default null comment '入住日期',
+    leave_date date default null comment '离店日期',
     status int(4) default null comment '支付状态，0-取消，1-未支付，2-已支付，3-交易成功，4-交易失败',
     payment_time datetime default null comment '支付时间',
     end_time datetime default null comment '交易完成时间',

@@ -12,9 +12,9 @@
 
     <appender name="HotelOrder1" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!--<File>d:/hotellog/hotel.log</File>-->
-        <File>/developer/apache-tomcat-7.0.73/logs/hotel.log</File>
+        <File>D:/java/apache-tomcat-7.0.62/HotelLogs/hotel.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/developer/apache-tomcat-7.0.73/logs/hotel.log.%d{yyyy-MM-dd}.gz</fileNamePattern>
+            <fileNamePattern>D:/java/apache-tomcat-7.0.62/HotelLogs/hotel.log.%d{yyyy-MM-dd}.gz</fileNamePattern>
             <append>true</append>
             <maxHistory>10</maxHistory>
         </rollingPolicy>
@@ -26,9 +26,9 @@
 
     <appender name="error" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!--<File>d:/hotellog/error.log</File>-->
-        <File>/developer/apache-tomcat-7.0.73/logs/error.log</File>
+        <File>D:/java/apache-tomcat-7.0.62/HotelLogs/error.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/devsoft/apache-tomcat-7.0.73/logs/error.log.%d{yyyy-MM-dd}.gz</fileNamePattern>
+            <fileNamePattern>D:/java/apache-tomcat-7.0.62/HotelLogs/error.log.%d{yyyy-MM-dd}.gz</fileNamePattern>
             <!--<fileNamePattern>d:/hotellog/error.log.%d{yyyy-MM-dd}.gz</fileNamePattern>-->
             <append>true</append>
             <maxHistory>10</maxHistory>
