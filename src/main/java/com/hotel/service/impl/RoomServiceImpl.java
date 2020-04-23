@@ -119,12 +119,12 @@ public class RoomServiceImpl implements IRoomService {
         return roomDetailVo;
     }
 
-    public ServerResponse<PageInfo> getRoomList(int pageNum,int pageSize){
+    public ServerResponse<PageInfo> getRoomList(int pageNum,int pageSize,Integer typeId){
         //startPage--start
         //填充sql查询逻辑
         //pageHelper-收尾
         PageHelper.startPage(pageNum,pageSize);
-        List<Room> roomList=roomMapper.selectRoomList();
+        List<Room> roomList=roomMapper.selectRoomList(typeId);
         List<RoomListVo> roomListVoList= Lists.newArrayList();
         for (Room roomItem:roomList){
             RoomListVo roomListVo=assembleRoomListVo(roomItem);

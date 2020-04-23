@@ -170,4 +170,24 @@
     from hotel_rooms,hotel_hotels
     where type_id=hotel_hotels.id
   </select>
+
+  <select id="selectHotelList" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"></include>
+    from hotel_hotels
+    order by id asc
+  </select>
+
+  <select id="selectHotelsByIdAndName" resultMap="BaseResultMap" parameterType="map">
+    select
+    <include refid="Base_Column_List"></include>
+    from hotel_hotels
+    <where>
+      <if test="hotelsName!=null">
+          and name like #{hotelsName}
+      </if>
+      <if test="hotelsId!=null">
+          and id=#{hotelsId}
+      </if>
+    </where>
+  </select>
 </mapper>

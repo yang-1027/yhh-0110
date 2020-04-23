@@ -1,7 +1,9 @@
 package com.hotel.service;
 
+import com.github.pagehelper.PageInfo;
 import com.hotel.common.ServerResponse;
 import com.hotel.pojo.Hotels;
+import com.hotel.vo.HotelDetailVo;
 
 import java.util.List;
 
@@ -13,11 +15,18 @@ import java.util.List;
  **/
 public interface IHotelService {
 
-    ServerResponse addHotel(String hotelName, Integer userId);
+    ServerResponse addOrUpdateHotel(Hotels hotels);
 
     ServerResponse updateHotelName(Integer hotelId,String hotelName);
 
     ServerResponse<List<Hotels>> getRoomsBykHotel(Integer hotelId);
+
+    ServerResponse<HotelDetailVo> getHotelDetail(Integer hotelId);
+
+    ServerResponse<PageInfo> getHotelList(int  pageNum, int pageSize);
+
+    ServerResponse<PageInfo> searchHotel(String hotelName,Integer hotelId,int pageNum,int pageSize);
+
 
 }
 

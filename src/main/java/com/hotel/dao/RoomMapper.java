@@ -17,5 +17,5 @@ public interface RoomMapper {
 
     int updateByPrimaryKey(Room record);
 
-    List<Room> selectRoomList();
+    List<Room> selectRoomList(Integer typeId);
 }

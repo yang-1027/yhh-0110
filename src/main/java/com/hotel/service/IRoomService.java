@@ -19,7 +19,7 @@ public interface IRoomService {
 
     ServerResponse<RoomDetailVo> manageRoomDetail(Integer roomId);
 
-    ServerResponse<PageInfo> getRoomList(int pageNum, int pageSize);
+    ServerResponse<PageInfo> getRoomList(int pageNum, int pageSize,Integer typeId);
 
 }
 
