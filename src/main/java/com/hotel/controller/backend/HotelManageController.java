@@ -125,6 +125,7 @@ public class HotelManageController {
 
     public ServerResponse upload(MultipartFile file, HttpServletRequest request){
         String path=request.getSession().getServletContext().getRealPath("upload");
+
     }
 
 }
