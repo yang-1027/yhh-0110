@@ -12,7 +12,7 @@ public class HotelDetailVo {
     private Integer id;
     private String name;
     private Integer userId;
-    private Boolean status;
+    private Integer status;
     private String mainImage;
     private String subImages;
     private String detail;
@@ -47,11 +47,11 @@ public class HotelDetailVo {
         this.userId = userId;
     }
 
-    public Boolean getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Boolean status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 

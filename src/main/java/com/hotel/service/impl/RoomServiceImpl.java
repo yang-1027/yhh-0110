@@ -46,7 +46,6 @@ public class RoomServiceImpl implements IRoomService {
                     room.setMainImage(subImageArray[0]);
                 }
             }
-
             if (room.getId()!=null){
                 int rowCount=roomMapper.updateByPrimaryKey(room);
                 if (rowCount>0){
@@ -64,6 +63,34 @@ public class RoomServiceImpl implements IRoomService {
         return ServerResponse.createByErrorMessage("新增房间或更新房间错误");
     }
 
+    public ServerResponse hotelSaveOrUpdateRoom(Room room,Integer hotelId){
+        if (room!=null&&hotelId!=null){
+            room.setTypeId(hotelId);
+            if (StringUtils.isNotBlank(room.getSubImages())){
+                String[] subImageArray=room.getSubImages().split(",");
+                if (subImageArray.length>0){
+                    room.setMainImage(subImageArray[0]);
+                }
+            }
+            if (room.getId()!=null){
+                int rowCount=roomMapper.updateByPrimaryKey(room);
+                if (rowCount>0){
+                    return ServerResponse.createBySuccessMessage("更新房间成功");
+                }
+                return ServerResponse.createBySuccessMessage("更新房间失败");
+            }else {
+                int rowCount=roomMapper.insert(room);
+                if (rowCount>0){
+                    return ServerResponse.createBySuccessMessage("新增房间成功");
+                }
+                return ServerResponse.createBySuccessMessage("新增房间失败");
+            }
+        }
+        return ServerResponse.createByErrorMessage("新增房间或更新房间错误");
+    }
+
+
+
     public ServerResponse<String> setRoomStatus(Integer roomId,Integer status){
         if (roomId==null||status==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
@@ -72,6 +99,17 @@ public class RoomServiceImpl implements IRoomService {
         room.setId(roomId);
         room.setStatus(status);
         int rowCount=roomMapper.updateByPrimaryKeySelective(room);
+        if (rowCount>0){
+            return ServerResponse.createBySuccessMessage("更改房间状态成功");
+        }
+        return ServerResponse.createByErrorMessage("更改房间状态失败");
+    }
+
+    public ServerResponse<String> hotelSetRoomStatus(Integer roomId,Integer status,Integer hotelId){
+        if (roomId==null||status==null||hotelId==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+        int rowCount=roomMapper.hotelSetRoomStatus(roomId,status,hotelId);
         if (rowCount>0){
             return ServerResponse.createBySuccessMessage("更改房间状态成功");
         }

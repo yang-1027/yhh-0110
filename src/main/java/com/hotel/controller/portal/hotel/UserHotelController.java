@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpSession;
 
 @Controller
-@RequestMapping("/hotel/")
-public class HotelController {
+@RequestMapping("/hotel/user")
+public class UserHotelController {
 
     @Autowired
     private IUserService iUserService;
@@ -30,10 +30,15 @@ public class HotelController {
     @RequestMapping(value = "login.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<User> login(String username, String password, HttpSession session){
-        //Todo 设置只能酒店登录
+        // 设置只能酒店登录
         ServerResponse<User> response =iUserService.login(username,password);
         if (response.isSuccess()){
-            session.setAttribute(Const.CURRENT_USER,response.getDate());
+            User user =response.getDate();
+            if (user.getRole()==Const.Role.ROLE_HOTEL){
+                session.setAttribute(Const.CURRENT_USER,response.getDate());
+                return response;
+            }
+            return ServerResponse.createByErrorMessage("该账号不是酒店管理账号");
         }
         return response;
     }
@@ -57,6 +62,7 @@ public class HotelController {
     public ServerResponse<String> checkValid(String str,String type){
         return iUserService.checkValid(str,type);
     }
+
     @RequestMapping(value = "get_user_info.do",method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<User>getUserInfo(HttpSession session){

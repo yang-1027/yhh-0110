@@ -9,7 +9,7 @@ public class Hotels {
 
     private Integer userId;
 
-    private Boolean status;
+    private Integer status;
 
     private String mainImage;
 
@@ -25,7 +25,7 @@ public class Hotels {
 
     private Date updateTime;
 
-    public Hotels(Integer id, String name, Integer userId, Boolean status, String mainImage, String subImages, String detail, Integer sortOrder, Float star, Date createTime, Date updateTime) {
+    public Hotels(Integer id, String name, Integer userId, Integer status, String mainImage, String subImages, String detail, Integer sortOrder, Float star, Date createTime, Date updateTime) {
         this.id = id;
         this.name = name;
         this.userId = userId;
@@ -35,6 +35,7 @@ public class Hotels {
         this.detail = detail;
         this.sortOrder = sortOrder;
         this.star = star;
+
         this.createTime = createTime;
         this.updateTime = updateTime;
     }
@@ -67,11 +68,9 @@ public class Hotels {
         this.userId = userId;
     }
 
-    public Boolean getStatus() {
-        return status;
-    }
+    public Integer getStatus() { return status;}
 
-    public void setStatus(Boolean status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 

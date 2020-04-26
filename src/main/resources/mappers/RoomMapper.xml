@@ -171,4 +171,11 @@
     where type_id=#{typeId}
     order by id asc
   </select>
+
+  <update id="hotelSetRoomStatus" parameterType="map">
+    update hotels_rooms
+    set status=#{status}
+    where id=#{roomId}
+    and type_id=#{hotelId}
+  </update>
 </mapper>

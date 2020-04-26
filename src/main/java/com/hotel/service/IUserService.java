@@ -28,5 +28,7 @@ public interface IUserService {
 
     ServerResponse checkAdminRole(User user);
 
+    ServerResponse checkHotelRole(User user);
+
 }
 

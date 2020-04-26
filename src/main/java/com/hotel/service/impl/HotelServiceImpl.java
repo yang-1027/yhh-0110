@@ -3,12 +3,14 @@ package com.hotel.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import com.hotel.common.Const;
 import com.hotel.common.ResponseCode;
 import com.hotel.common.ServerResponse;
 
 
 import com.hotel.dao.HotelsMapper;
 import com.hotel.pojo.Hotels;
+import com.hotel.pojo.Room;
 import com.hotel.service.IHotelService;
 import com.hotel.util.DateTimeUtil;
 import com.hotel.util.PropertiesUtil;
@@ -47,7 +49,6 @@ public class HotelServiceImpl implements IHotelService {
                     hotels.setMainImage(subImageArray[0]);
                 }
             }
-
             if (hotels.getId()!=null){
                 int rowCount=hotelsMapper.updateByPrimaryKey(hotels);
                 if (rowCount>0){
@@ -62,10 +63,32 @@ public class HotelServiceImpl implements IHotelService {
             }
         }
         return ServerResponse.createBySuccessMessage("新增酒店失败");
-
-
     }
 
+    public ServerResponse hotelAddOrUpdateHotel(Hotels hotels,Integer userId){
+        if (hotels!=null&&userId!=null){
+            hotels.setUserId(userId);
+            if (StringUtils.isNotBlank(hotels.getSubImages())){
+                String[] subImageArray=hotels.getSubImages().split(",");
+                if (subImageArray.length>0){
+                    hotels.setMainImage(subImageArray[0]);
+                }
+            }
+            if (hotels.getId()!=null){
+                int rowCount=hotelsMapper.updateByPrimaryKey(hotels);
+                if (rowCount>0){
+                    return ServerResponse.createBySuccessMessage("更新酒店成功");
+                }
+                return ServerResponse.createBySuccessMessage("更新酒店失败");
+            }else {
+                int rowCount=hotelsMapper.insert(hotels);
+                if (rowCount>0){
+                    return ServerResponse.createBySuccessMessage("新增酒店成功");
+                }
+            }
+        }
+        return ServerResponse.createBySuccessMessage("新增酒店失败");
+    }
 
     public ServerResponse updateHotelName(Integer hotelId,String hotelName){
         if (hotelId==null||StringUtils.isBlank(hotelName)){
@@ -89,7 +112,7 @@ public class HotelServiceImpl implements IHotelService {
         return ServerResponse.createBySuccess(hotelsList);
     }
 
-    public ServerResponse<HotelDetailVo> getHotelDetail(Integer hotelId){
+    public ServerResponse<HotelDetailVo> manageHotelDetail(Integer hotelId){
         if (hotelId==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
@@ -120,9 +143,23 @@ public class HotelServiceImpl implements IHotelService {
         return hotelDetailVo;
     }
 
-    public ServerResponse<PageInfo> getHotelList(int  pageNum,int pageSize){
+    public ServerResponse<PageInfo> manageHotelList(int  pageNum,int pageSize){
         PageHelper.startPage(pageNum,pageSize);
         List<Hotels> hotelsList=hotelsMapper.selectHotelList();
+        List<HotelListVo> hotelListVoList= Lists.newArrayList();
+        for (Hotels hotels:hotelsList){
+            HotelListVo hotelListVo=assembleHotelList(hotels);
+            hotelListVoList.add(hotelListVo);
+        }
+        PageInfo pageResult=new PageInfo(hotelsList);
+        pageResult.setList(hotelListVoList);
+
+        return ServerResponse.createBySuccess(pageResult);
+    }
+
+    public ServerResponse<PageInfo> hotelHotelList(Integer userId,int  pageNum,int pageSize){
+        PageHelper.startPage(pageNum,pageSize);
+        List<Hotels> hotelsList=hotelsMapper.selectHotelListByUserId(userId);
         List<HotelListVo> hotelListVoList= Lists.newArrayList();
         for (Hotels hotels:hotelsList){
             HotelListVo hotelListVo=assembleHotelList(hotels);
@@ -164,6 +201,88 @@ public class HotelServiceImpl implements IHotelService {
 
         return ServerResponse.createBySuccess(pageResult);
     }
+
+    public ServerResponse<String> setHotelStatus(Integer hotelId,Integer status){
+        if (hotelId==null||status==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+        Hotels hotels=new Hotels();
+        hotels.setId(hotelId);
+        hotels.setStatus(status);
+        int rowCount=hotelsMapper.updateByPrimaryKeySelective(hotels);
+        if (rowCount>0){
+            return ServerResponse.createBySuccessMessage("更改房间状态成功");
+        }
+        return ServerResponse.createByErrorMessage("更改房间状态失败");
+    }
+
+    public ServerResponse<String> hotelSetHotelStatus(Integer hotelId,Integer status,Integer userId){
+        if (hotelId==null||status==null||userId==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+        int rowCount=hotelsMapper.setStatusByIdAndUserId(hotelId,status,userId);
+        if (rowCount>0){
+            return ServerResponse.createBySuccessMessage("更改房间状态成功");
+        }
+        return ServerResponse.createByErrorMessage("更改房间状态失败");
+    }
+
+    public ServerResponse<HotelDetailVo> getHotelDetail(Integer hotelId){
+        if (hotelId==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+        Hotels hotels=hotelsMapper.selectByPrimaryKey(hotelId);
+        if (hotels==null){
+            return ServerResponse.createBySuccessMessage("未找到该酒店,该酒店可能已删除或不存在");
+        }if (hotels.getStatus()!= Const.HotelStatusEnum.ON_SALE.getCode()){
+            return ServerResponse.createByErrorMessage("酒店已关闭或删除");
+        }
+        HotelDetailVo hotelDetailVo=assembleHotelDetail(hotels);
+        return ServerResponse.createBySuccess(hotelDetailVo);
+    }
+
+    public ServerResponse<PageInfo> getHotelByKeyword(String keyword,Integer hotelId,int pageNum,int pageSize,String orderBy){
+        if (StringUtils.isBlank(keyword)&&hotelId==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+
+        if (hotelId!=null){
+            Hotels hotels=hotelsMapper.selectByPrimaryKey(hotelId);
+            if (hotels==null&&StringUtils.isBlank(keyword)){
+                //没有该酒店id
+                PageHelper.startPage(pageNum,pageSize);
+                List<HotelListVo> hotelListVoList=Lists.newArrayList();
+                PageInfo pageInfo=new PageInfo(hotelListVoList);
+                return ServerResponse.createBySuccess(pageInfo);
+            }
+        }
+        if (StringUtils.isBlank(keyword)){
+            keyword=new StringBuilder().append("%") .append(keyword).append("%").toString();
+        }
+
+        PageHelper.startPage(pageNum,pageSize);
+        if (StringUtils.isNotBlank(orderBy)){
+            if (Const.hotelListOrderBy.STAR_ASC_DESC.contains(orderBy)){
+                String [] orderByArray=orderBy.split("_");
+                PageHelper.orderBy(orderByArray[0]+" "+orderByArray[1]);
+            }
+        }
+        List<Hotels> hotelsList=hotelsMapper.userSelectHotelByNameAndHotelId(StringUtils.isBlank(keyword)?null:keyword,hotelId==null?null:hotelId);
+
+        List<HotelListVo> hotelListVoList=Lists.newArrayList();
+        for (Hotels hotels:hotelsList){
+            HotelListVo hotelListVo=assembleHotelList(hotels);
+            hotelListVoList.add(hotelListVo);
+        }
+        PageInfo pageInfo=new PageInfo(hotelsList);
+        pageInfo.setList(hotelListVoList);
+        return ServerResponse.createBySuccess(pageInfo);
+
+    }
+
+//    ServerResponse HotelIsUser(Integer hotelId,Integer userId){
+//        int
+//    }
 
 }
 

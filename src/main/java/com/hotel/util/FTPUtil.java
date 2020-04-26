@@ -18,7 +18,7 @@ import java.util.List;
  **/
 public class FTPUtil {
 
-    Logger logger= LoggerFactory.getLogger(FTPUtil.class);
+    private static Logger logger= LoggerFactory.getLogger(FTPUtil.class);
 
     private static String ftpIp=PropertiesUtil.getProperty("ftp.server.ip");
     private static String ftpUser=PropertiesUtil.getProperty("ftp.user");
@@ -30,11 +30,14 @@ public class FTPUtil {
         this.user=user;
         this.pwd=pwd;
     }
-    public static boolean uploadFile(List<File> fileList){
-        FTPUtil ftpUtil=new FTPUtil(ftpIp,21,ftpUser,ftpIp);
-
+    public static boolean uploadFile(List<File> fileList) throws IOException {
+        FTPUtil ftpUtil=new FTPUtil(ftpIp,21,ftpUser,ftpPass);
+        logger.info("开始连接ftp服务器");
+        boolean result=ftpUtil.uploadFile("img",fileList);
+        logger.info("开始连接ftp服务器,结束上传，上传结果:{}");
+        return result;
     }
-    private boolean uploadFile(String remotePath,List<File> fileList){
+    private boolean uploadFile(String remotePath,List<File> fileList) throws IOException {
         boolean uploaded =true;
         FileInputStream fis=null;
         //连接FTP服务器
@@ -51,8 +54,13 @@ public class FTPUtil {
                 }
             } catch (IOException e) {
                 logger.error("上传文件异常",e);
+                uploaded=false;
+            }finally {
+                fis.close();
+                ftpClient.disconnect();
             }
         }
+        return uploaded;
     }
 
     private boolean connectServer(String ip,int port,String user,String pwd){

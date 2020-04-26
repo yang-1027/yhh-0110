@@ -26,7 +26,7 @@
     delete from hotel_user_detils
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.hotel.pojo.Detils" >
+  <insert id="insert" parameterType="com.hotel.pojo.Detils" useGeneratedKeys="true" keyProperty="id">
     insert into hotel_user_detils (id, user_id, hotel_id, 
       stay_name, stay_phone, stay_card_id, 
       create_time, update_time)
@@ -127,4 +127,36 @@
       update_time = now()
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <delete id="deleteByDetailIdUserId" parameterType="map">
+    delete from hotel_user_detils
+    where id=#{detailId}
+    and user_id=#{userId}
+  </delete>
+
+  <update id="updateByDetail" parameterType="com.hotel.pojo.Detils">
+    update hotel_user_detils
+    set hotel_id = #{hotelId,jdbcType=INTEGER},
+      stay_name = #{stayName,jdbcType=VARCHAR},
+      stay_phone = #{stayPhone,jdbcType=INTEGER},
+      stay_card_id = #{stayCardId,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now()
+    where id = #{id,jdbcType=INTEGER}
+    and user_id=#{userId,jdbcType=INTEGER}
+  </update>
+  
+  <select id="selectByIdUserId" resultMap="BaseResultMap" parameterType="map">
+    select
+    <include refid="Base_Column_List"></include>
+    from hotel_user_detils
+    where id=#{detailId}
+    and userId=#{userId}
+  </select>
+
+  <select id="selectByUsetrId" resultMap="BaseResultMap" parameterType="map">
+    select
+    <include refid="Base_Column_List"></include>
+    from hotel_user_detils
+    where user_id=#{userId}
+  </select>
 </mapper>

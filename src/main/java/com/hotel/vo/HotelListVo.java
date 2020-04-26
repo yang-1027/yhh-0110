@@ -11,7 +11,7 @@ public class HotelListVo {
     private Integer id;
     private String name;
     private Integer userId;
-    private Boolean status;
+    private Integer status;
     private String mainImage;
     private String detail;
     private Float star;
@@ -42,11 +42,11 @@ public class HotelListVo {
         this.userId = userId;
     }
 
-    public Boolean getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Boolean status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 

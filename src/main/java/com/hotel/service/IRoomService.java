@@ -21,5 +21,9 @@ public interface IRoomService {
 
     ServerResponse<PageInfo> getRoomList(int pageNum, int pageSize,Integer typeId);
 
+    ServerResponse hotelSaveOrUpdateRoom(Room room,Integer hotelId);
+
+    ServerResponse<String> hotelSetRoomStatus(Integer roomId,Integer status,Integer hotelId);
+
 }
 

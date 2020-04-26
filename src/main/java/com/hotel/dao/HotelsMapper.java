@@ -22,6 +22,14 @@ public interface HotelsMapper {
 
     List<Hotels> selectHotelList();
 
+    List<Hotels> selectHotelListByUserId(Integer userId);
+
     List<Hotels> selectHotelsByIdAndName(@Param("hotelsName")String hotelsName,@Param("hotelsId")Integer hotelId);
+
+    List<Hotels> userSelectHotelByNameAndHotelId(@Param("hotelsName")String hotelsName,@Param("hotelsId")Integer hotelId);
+
+    int setStatusByIdAndUserId(@Param("id")Integer id,@Param("status")Integer status,@Param("userId")Integer userId);
+
+    int hotelIsUser(@Param("userId")Integer userId,@Param("hotelId")Integer hotelId);
 
 }

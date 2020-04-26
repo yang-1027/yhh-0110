@@ -43,8 +43,6 @@ public class UserServiceImpl implements IUserService {
     }
 
     public ServerResponse<String> register(User user){
-
-
         ServerResponse validResponse=this.checkValid(user.getUsername(),Const.USERNAME);
         if (!validResponse.isSuccess()){
             return validResponse;
@@ -55,7 +53,7 @@ public class UserServiceImpl implements IUserService {
             return validResponse;
         }
 
-        user.setRole(Const.Role.ROLE_HOTEL);
+        user.setRole(Const.Role.ROLE_CUSTOMER);
         //MD5加密
         user.setPassword(MD5Util.MD5EncodeUtf8(user.getPassword()));
         int resultCount=userMapper.insert(user);
@@ -64,6 +62,7 @@ public class UserServiceImpl implements IUserService {
         }
         return ServerResponse.createBySuccessMessage("注册成功");
     }
+
 
     public ServerResponse<String> checkValid(String str,String type){
 
@@ -177,6 +176,39 @@ public class UserServiceImpl implements IUserService {
         return ServerResponse.createBySuccess(user);
     }
 
+    //hotel注册设置角色为1
+    public ServerResponse<String> hotelRegister(User user){
+        ServerResponse validResponse=this.checkValid(user.getUsername(),Const.USERNAME);
+        if (!validResponse.isSuccess()){
+            return validResponse;
+        }
+
+        validResponse=this.checkValid(user.getEmail(),Const.EMAIL);
+        if (!validResponse.isSuccess()){
+            return validResponse;
+        }
+
+        user.setRole(Const.Role.ROLE_HOTEL);
+        //MD5加密
+        user.setPassword(MD5Util.MD5EncodeUtf8(user.getPassword()));
+        int resultCount=userMapper.insert(user);
+        if (resultCount==0){
+            return ServerResponse.createByErrorMessage("注册失败");
+        }
+        return ServerResponse.createBySuccessMessage("注册成功");
+    }
+
+    /**
+     * 验证是否为酒店管理员
+     * @param user
+     * @return
+     */
+    public ServerResponse checkHotelRole(User user){
+        if (user!=null&&user.getRole().intValue()==Const.Role.ROLE_HOTEL){
+            return ServerResponse.createBySuccess();
+        }
+        return ServerResponse.createByError();
+    }
     //backend
 
     /**

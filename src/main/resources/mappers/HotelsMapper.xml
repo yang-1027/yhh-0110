@@ -6,7 +6,7 @@
       <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="user_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="status" jdbcType="BIT" javaType="java.lang.Boolean" />
+      <arg column="status" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="main_image" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="sub_images" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="detail" jdbcType="VARCHAR" javaType="java.lang.String" />
@@ -36,8 +36,8 @@
       detail, sort_order, star, 
       create_time, update_time)
     values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}, 
-      #{status,jdbcType=BIT}, #{mainImage,jdbcType=VARCHAR}, #{subImages,jdbcType=VARCHAR}, 
-      #{detail,jdbcType=VARCHAR}, #{sortOrder,jdbcType=INTEGER}, #{star,jdbcType=REAL}, 
+      #{status,jdbcType=INTEGER}, #{mainImage,jdbcType=VARCHAR}, #{subImages,jdbcType=VARCHAR},
+      #{detail,jdbcType=VARCHAR}, #{sortOrder,jdbcType=INTEGER}, #{star,jdbcType=REAL},
       now(), now())
   </insert>
   <insert id="insertSelective" parameterType="com.hotel.pojo.Hotels" >
@@ -88,7 +88,7 @@
         #{userId,jdbcType=INTEGER},
       </if>
       <if test="status != null" >
-        #{status,jdbcType=BIT},
+        #{status,jdbcType=INTEGER},
       </if>
       <if test="mainImage != null" >
         #{mainImage,jdbcType=VARCHAR},
@@ -123,7 +123,7 @@
         user_id = #{userId,jdbcType=INTEGER},
       </if>
       <if test="status != null" >
-        status = #{status,jdbcType=BIT},
+        status = #{status,jdbcType=INTEGER},
       </if>
       <if test="mainImage != null" >
         main_image = #{mainImage,jdbcType=VARCHAR},
@@ -153,7 +153,7 @@
     update hotel_hotels
     set name = #{name,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=INTEGER},
-      status = #{status,jdbcType=BIT},
+      status = #{status,jdbcType=INTEGER},
       main_image = #{mainImage,jdbcType=VARCHAR},
       sub_images = #{subImages,jdbcType=VARCHAR},
       detail = #{detail,jdbcType=VARCHAR},
@@ -177,6 +177,12 @@
     order by id asc
   </select>
 
+  <select id="selectHotelListByUserId" resultMap="BaseResultMap" parameterType="int">
+    select <include refid="Base_Column_List"></include>
+    from hotel_hotels
+    where user_id=#{userId}
+  </select>
+
   <select id="selectHotelsByIdAndName" resultMap="BaseResultMap" parameterType="map">
     select
     <include refid="Base_Column_List"></include>
@@ -189,5 +195,32 @@
           and id=#{hotelsId}
       </if>
     </where>
+  </select>
+
+  <select id="userSelectHotelByNameAndHotelId" resultMap="BaseResultMap" parameterType="map">
+    select
+    <include refid="Base_Column_List"></include>
+    from hotel_hotels
+    where status=1
+    <if test="hotelsName!=null">
+      and name like #{hotelsName}
+    </if>
+     <if test="hotelsId!=null">
+       and id=#{hotelsId}
+     </if>
+  </select>
+
+  <update id="setStatusByIdAndUserId" parameterType="map">
+    update hotel_hotels
+    set status=#{status}
+    where id=#{id}
+    and user_id=#{userId}
+  </update>
+
+  <select id="hotelIsUser" resultType="int" parameterType="map">
+    select count(1)
+    from hotel_hotels
+    where id=#{hotelId}
+    and user_id=#{userId}
   </select>
 </mapper>
