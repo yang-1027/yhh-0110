@@ -43,7 +43,7 @@
       )
     values (#{id,jdbcType=INTEGER}, #{orderNo,jdbcType=BIGINT}, #{userId,jdbcType=INTEGER}, 
       #{userDetilsId,jdbcType=INTEGER}, #{hotelId,jdbcType=INTEGER}, #{payment,jdbcType=DECIMAL}, 
-      #{paymentType,jdbcType=INTEGER}, CURDATE(), #{leaveDate,jdbcType=DATE},
+      #{paymentType,jdbcType=INTEGER}, #{checkinDate,jdbcType=DATE}, #{leaveDate,jdbcType=DATE},
       #{status,jdbcType=INTEGER}, #{paymentTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, 
       #{closeTime,jdbcType=TIMESTAMP}, now(), now()
       )
@@ -120,7 +120,7 @@
         #{paymentType,jdbcType=INTEGER},
       </if>
       <if test="checkinDate != null" >
-        CURDATE(),
+        #{checkinDate,jdbcType=DATE},
       </if>
       <if test="leaveDate != null" >
         #{leaveDate,jdbcType=DATE},
@@ -167,7 +167,7 @@
         payment_type = #{paymentType,jdbcType=INTEGER},
       </if>
       <if test="checkinDate != null" >
-        checkIn_date = CURDATE(),
+        checkIn_date = #{checkinDate,jdbcType=DATE},
       </if>
       <if test="leaveDate != null" >
         leave_date = #{leaveDate,jdbcType=DATE},
@@ -201,7 +201,7 @@
       hotel_id = #{hotelId,jdbcType=INTEGER},
       payment = #{payment,jdbcType=DECIMAL},
       payment_type = #{paymentType,jdbcType=INTEGER},
-      checkIn_date = CURDATE(),
+      checkIn_date = #{checkinDate,jdbcType=DATE},
       leave_date = #{leaveDate,jdbcType=DATE},
       status = #{status,jdbcType=INTEGER},
       payment_time = #{paymentTime,jdbcType=TIMESTAMP},
@@ -217,5 +217,12 @@
     from hotel_order
     where order_no=#{orderNo}
     and user_id=#{userId}
+  </select>
+
+  <select id="selectByOrderNo" resultMap="BaseResultMap" parameterType="long">
+    select
+    <include refid="Base_Column_List"></include>
+    from hotel_order
+    where order_no=#{orderNo}
   </select>
 </mapper>

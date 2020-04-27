@@ -19,6 +19,7 @@ public class DateTimeUtil {
     //str-date
     //date-str
     public static final String STANDARD_FORMAT="yyyy-MM-dd HH:mm:ss";
+    public static final String DATE_FORMAT="yyyy-MM-dd";
 
     public static Date strToDate(String dateTimeStr,String formatStr){
         DateTimeFormatter dateTimeFormatter= DateTimeFormat.forPattern(formatStr);
