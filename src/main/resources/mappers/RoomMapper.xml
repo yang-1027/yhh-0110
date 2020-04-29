@@ -164,7 +164,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
-  <select id="selectRoomList" resultMap="BaseResultMap">
+  <select id="selectRoomList" resultMap="BaseResultMap" parameterType="int">
     select
     <include refid="Base_Column_List"></include>
     from hotel_rooms
@@ -178,4 +178,12 @@
     where id=#{roomId}
     and type_id=#{hotelId}
   </update>
+
+  <select id="selectRoomListById" resultMap="BaseResultMap" parameterType="int">
+    select
+    <include refid="Base_Column_List"></include>
+    from hotel_rooms
+    where id=#{roomId}
+    and status=1
+  </select>
 </mapper>

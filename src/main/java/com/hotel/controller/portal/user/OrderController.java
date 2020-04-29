@@ -42,13 +42,42 @@ public class OrderController {
 
     @RequestMapping("create.do")
     @ResponseBody
-    public ServerResponse create(HttpSession session, Long orderNo,Integer detailsId,@RequestParam(value = "quantity",defaultValue = "1") Integer quantity){
+    public ServerResponse create(HttpSession session, Integer roomId,Integer detailsId,String checkInDate,String leaveDate,@RequestParam(value = "quantity",defaultValue = "1") Integer quantity){
         User user=(User)session.getAttribute(Const.CURRENT_USER);
         if (user==null){
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
+        return iOrderService.createOrder(user.getId(),roomId,detailsId,checkInDate,leaveDate,quantity);
+    }
 
-        return iOrderService.pay(orderNo,user.getId(),path);
+    @RequestMapping("cancel.do")
+    @ResponseBody
+    public ServerResponse cancel(HttpSession session, Long orderNo){
+        User user=(User)session.getAttribute(Const.CURRENT_USER);
+        if (user==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
+        }
+        return iOrderService.cancel(user.getId(),orderNo);
+    }
+
+    @RequestMapping("detail.do")
+    @ResponseBody
+    public ServerResponse detail(HttpSession session, Long orderNo){
+        User user=(User)session.getAttribute(Const.CURRENT_USER);
+        if (user==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
+        }
+        return iOrderService.getOrderDetail(user.getId(),orderNo);
+    }
+
+    @RequestMapping("list.do")
+    @ResponseBody
+    public ServerResponse list(HttpSession session,@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,@RequestParam(value = "pageSize",defaultValue = "10")int pageSize){
+        User user=(User)session.getAttribute(Const.CURRENT_USER);
+        if (user==null){
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
+        }
+        return iOrderService.getOrderList(user.getId(),pageNum,pageSize);
     }
 
 

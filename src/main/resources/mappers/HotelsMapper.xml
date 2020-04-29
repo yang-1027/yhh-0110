@@ -223,4 +223,10 @@
     where id=#{hotelId}
     and user_id=#{userId}
   </select>
+
+  <select id="selectUserByHotelId" resultType="int" parameterType="int">
+    select user_id
+    from hotel_hotels
+    where id=#{hotelId}
+  </select>
 </mapper>

@@ -41,6 +41,8 @@ public interface IHotelService {
 
     ServerResponse<String> hotelSetHotelStatus(Integer hotelId,Integer status,Integer userId);
 
+    ServerResponse checkHotelUser(Integer userId,Integer hotelId);
+
 
 
 }

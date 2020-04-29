@@ -17,6 +17,8 @@ public class OrderVo {
 
     private Long orderNo;
 
+    private Integer hotelId;
+
     private BigDecimal payment;
 
     private Integer paymentType;
@@ -33,6 +35,8 @@ public class OrderVo {
 
     private String paymentTime;
 
+    private String agreeTime;
+
     private String endTime;
 
     private String closeTime;
@@ -40,7 +44,7 @@ public class OrderVo {
     private String createTime;
 
 
-    private OrderItemVo orderItemVo;
+    private List<OrderItemVo> orderItemVoList;
 
     private String imageHost;
     private Integer detailId;
@@ -54,6 +58,14 @@ public class OrderVo {
 
     public void setOrderNo(Long orderNo) {
         this.orderNo = orderNo;
+    }
+
+    public Integer getHotelId() {
+        return hotelId;
+    }
+
+    public void setHotelId(Integer hotelId) {
+        this.hotelId = hotelId;
     }
 
     public BigDecimal getPayment() {
@@ -120,6 +132,14 @@ public class OrderVo {
         this.paymentTime = paymentTime;
     }
 
+    public String getAgreeTime() {
+        return agreeTime;
+    }
+
+    public void setAgreeTime(String agreeTime) {
+        this.agreeTime = agreeTime;
+    }
+
     public String getEndTime() {
         return endTime;
     }
@@ -144,12 +164,12 @@ public class OrderVo {
         this.createTime = createTime;
     }
 
-    public OrderItemVo getOrderItemVoList() {
-        return orderItemVo;
+    public List<OrderItemVo> getOrderItemVoList() {
+        return orderItemVoList;
     }
 
-    public void setOrderItemVoList(OrderItemVo orderItemVoList) {
-        this.orderItemVo = orderItemVoList;
+    public void setOrderItemVoList(List<OrderItemVo> orderItemVoList) {
+        this.orderItemVoList = orderItemVoList;
     }
 
     public String getImageHost() {

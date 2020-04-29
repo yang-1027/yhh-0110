@@ -13,13 +13,13 @@ public class Detils {
 
     private Integer stayPhone;
 
-    private Integer stayCardId;
+    private String  stayCardId;
 
     private Date createTime;
 
     private Date updateTime;
 
-    public Detils(Integer id, Integer userId, Integer hotelId, String stayName, Integer stayPhone, Integer stayCardId, Date createTime, Date updateTime) {
+    public Detils(Integer id, Integer userId, Integer hotelId, String stayName, Integer stayPhone, String stayCardId, Date createTime, Date updateTime) {
         this.id = id;
         this.userId = userId;
         this.hotelId = hotelId;
@@ -74,11 +74,11 @@ public class Detils {
         this.stayPhone = stayPhone;
     }
 
-    public Integer getStayCardId() {
+    public String getStayCardId() {
         return stayCardId;
     }
 
-    public void setStayCardId(Integer stayCardId) {
+    public void setStayCardId(String stayCardId) {
         this.stayCardId = stayCardId;
     }
 

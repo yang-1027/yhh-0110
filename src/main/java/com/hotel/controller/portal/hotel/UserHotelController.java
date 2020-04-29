@@ -54,7 +54,7 @@ public class UserHotelController {
     @ResponseBody
     public ServerResponse<String> register(User user){
 
-        return iUserService.register(user);
+        return iUserService.hotelRegister(user);
     }
 
     @RequestMapping(value = "check_valid.do",method = RequestMethod.POST)

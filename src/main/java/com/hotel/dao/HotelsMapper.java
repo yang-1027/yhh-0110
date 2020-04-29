@@ -32,4 +32,8 @@ public interface HotelsMapper {
 
     int hotelIsUser(@Param("userId")Integer userId,@Param("hotelId")Integer hotelId);
 
+    int selectUserByHotelId(Integer hotelId);
+
+
+
 }

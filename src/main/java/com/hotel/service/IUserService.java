@@ -14,6 +14,8 @@ public interface IUserService {
 
     ServerResponse<String> register(User user);
 
+    ServerResponse<String> hotelRegister(User user);
+
     ServerResponse<String> checkValid(String str,String type);
 
     ServerResponse<String> forgetPassword(String username);

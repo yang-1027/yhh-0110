@@ -50,7 +50,7 @@ public class RoomsHotelController {
             return ServerResponse.createByErrorMessage("添加或更新房间失败");
 
         }else {
-            return ServerResponse.createByErrorMessage("无权限操作，需管理员权限");
+            return ServerResponse.createByErrorMessage("无权限操作，需酒店权限");
         }
     }
 
@@ -65,7 +65,7 @@ public class RoomsHotelController {
             //酒店权限
             return iRoomService.hotelSetRoomStatus(roomId,status,hotelId);
         }else {
-            return ServerResponse.createByErrorMessage("无权限操作，需管理员权限");
+            return ServerResponse.createByErrorMessage("无权限操作，需酒店权限");
         }
     }
 
@@ -81,7 +81,7 @@ public class RoomsHotelController {
             //管理员
             return iRoomService.getRoomList(pageNum,pageSize,typeId);
         }else {
-            return ServerResponse.createByErrorMessage("无权限操作，需管理员权限");
+            return ServerResponse.createByErrorMessage("无权限操作，需酒店权限");
         }
     }
 

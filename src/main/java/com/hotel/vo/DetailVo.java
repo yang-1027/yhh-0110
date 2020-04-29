@@ -12,7 +12,7 @@ public class DetailVo {
 
     private Integer stayPhone;
 
-    private Integer stayCardId;
+    private String  stayCardId;
 
     public String getStayName() {
         return stayName;
@@ -30,11 +30,11 @@ public class DetailVo {
         this.stayPhone = stayPhone;
     }
 
-    public Integer getStayCardId() {
+    public String getStayCardId() {
         return stayCardId;
     }
 
-    public void setStayCardId(Integer stayCardId) {
+    public void setStayCardId(String stayCardId) {
         this.stayCardId = stayCardId;
     }
 }

@@ -10,6 +10,8 @@ public class OrderItem {
 
     private Long orderNo;
 
+    private Integer hotelId;
+
     private Integer roomId;
 
     private String roomname;
@@ -26,10 +28,11 @@ public class OrderItem {
 
     private Date updateTime;
 
-    public OrderItem(Integer id, Integer userId, Long orderNo, Integer roomId, String roomname, String productImage, BigDecimal currentUnitPrice, Integer quantity, BigDecimal totalPrice, Date createTime, Date updateTime) {
+    public OrderItem(Integer id, Integer userId, Long orderNo,Integer hotelId, Integer roomId, String roomname, String productImage, BigDecimal currentUnitPrice, Integer quantity, BigDecimal totalPrice, Date createTime, Date updateTime) {
         this.id = id;
         this.userId = userId;
         this.orderNo = orderNo;
+        this.hotelId=hotelId;
         this.roomId = roomId;
         this.roomname = roomname;
         this.productImage = productImage;
@@ -66,6 +69,14 @@ public class OrderItem {
 
     public void setOrderNo(Long orderNo) {
         this.orderNo = orderNo;
+    }
+
+    public Integer getHotelId(){
+        return hotelId;
+    }
+
+    public void setHotelId(Integer hotelId) {
+        this.hotelId = hotelId;
     }
 
     public Integer getRoomId() {

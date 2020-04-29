@@ -8,7 +8,7 @@
       <arg column="hotel_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="stay_name" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="stay_phone" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="stay_card_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="stay_card_id" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
       <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
     </constructor>
@@ -31,7 +31,7 @@
       stay_name, stay_phone, stay_card_id, 
       create_time, update_time)
     values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{hotelId,jdbcType=INTEGER}, 
-      #{stayName,jdbcType=VARCHAR}, #{stayPhone,jdbcType=INTEGER}, #{stayCardId,jdbcType=INTEGER}, 
+      #{stayName,jdbcType=VARCHAR}, #{stayPhone,jdbcType=INTEGER}, #{stayCardId,jdbcType=VARCHAR},
       now(), now())
   </insert>
   <insert id="insertSelective" parameterType="com.hotel.pojo.Detils" >
@@ -79,7 +79,7 @@
         #{stayPhone,jdbcType=INTEGER},
       </if>
       <if test="stayCardId != null" >
-        #{stayCardId,jdbcType=INTEGER},
+        #{stayCardId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null" >
         now(),
@@ -105,7 +105,7 @@
         stay_phone = #{stayPhone,jdbcType=INTEGER},
       </if>
       <if test="stayCardId != null" >
-        stay_card_id = #{stayCardId,jdbcType=INTEGER},
+        stay_card_id = #{stayCardId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
@@ -122,7 +122,7 @@
       hotel_id = #{hotelId,jdbcType=INTEGER},
       stay_name = #{stayName,jdbcType=VARCHAR},
       stay_phone = #{stayPhone,jdbcType=INTEGER},
-      stay_card_id = #{stayCardId,jdbcType=INTEGER},
+      stay_card_id = #{stayCardId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = now()
     where id = #{id,jdbcType=INTEGER}
@@ -138,7 +138,7 @@
     set hotel_id = #{hotelId,jdbcType=INTEGER},
       stay_name = #{stayName,jdbcType=VARCHAR},
       stay_phone = #{stayPhone,jdbcType=INTEGER},
-      stay_card_id = #{stayCardId,jdbcType=INTEGER},
+      stay_card_id = #{stayCardId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = now()
     where id = #{id,jdbcType=INTEGER}

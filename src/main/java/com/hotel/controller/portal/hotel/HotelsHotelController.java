@@ -54,7 +54,7 @@ public class HotelsHotelController {
             //酒店用户
             return iHotelService.hotelAddOrUpdateHotel(hotels,user.getId());
         }else {
-            return ServerResponse.createByErrorMessage("无权限操作，需管理员权限");
+            return ServerResponse.createByErrorMessage("无权限操作，需酒店权限");
         }
     }
 
@@ -70,7 +70,7 @@ public class HotelsHotelController {
             //酒店
             return iHotelService.hotelHotelList(user.getId(),pageNum,pageSize);
         }else {
-            return ServerResponse.createByErrorMessage("无权限操作，需管理员权限");
+            return ServerResponse.createByErrorMessage("无权限操作，需酒店权限");
         }
     }
 
@@ -85,7 +85,7 @@ public class HotelsHotelController {
             //酒店
             return iHotelService.hotelSetHotelStatus(hotelId,status,user.getId());
         }else {
-            return ServerResponse.createByErrorMessage("无权限操作，需管理员权限");
+            return ServerResponse.createByErrorMessage("无权限操作，需酒店权限");
         }
     }
 
@@ -106,7 +106,7 @@ public class HotelsHotelController {
             fileMap.put("url",url);
             return ServerResponse.createBySuccess(fileMap);
         }else {
-            return ServerResponse.createByErrorMessage("无权限操作，需管理员权限");
+            return ServerResponse.createByErrorMessage("无权限操作，需酒店权限");
         }
 
     }

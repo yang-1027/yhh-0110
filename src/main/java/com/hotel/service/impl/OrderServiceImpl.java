@@ -10,6 +10,8 @@ import com.alipay.demo.trade.model.result.AlipayF2FPrecreateResult;
 import com.alipay.demo.trade.service.AlipayTradeService;
 import com.alipay.demo.trade.service.impl.AlipayTradeServiceImpl;
 import com.alipay.demo.trade.utils.ZxingUtils;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.hotel.common.Const;
@@ -21,14 +23,16 @@ import com.hotel.util.BigDecimalUtil;
 import com.hotel.util.DateTimeUtil;
 import com.hotel.util.FTPUtil;
 import com.hotel.util.PropertiesUtil;
+import com.hotel.vo.DetailVo;
+import com.hotel.vo.OrderItemVo;
 import com.hotel.vo.OrderVo;
 import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.binding.MapperRegistry;
-import org.aspectj.weaver.ast.Or;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,34 +61,43 @@ public class OrderServiceImpl implements IOrderService {
     private RoomMapper roomMapper;
     @Autowired
     private DetilsMapper detilsMapper;
+    @Autowired
+    private HotelsMapper hotelsMapper;
 
     public ServerResponse createOrder(Integer userId, Integer roomId, Integer detailId, String checkInDate,String leaveDate, Integer quantity){
-        Room room=roomMapper.selectByPrimaryKey(roomId);
+        List<Room> roomList=roomMapper.selectRoomListById(roomId);
         //计算订单总价
-        ServerResponse serverResponse=this.getCartOrderItem(userId,room,quantity);
+        ServerResponse serverResponse=this.getCartOrderItem(userId,roomList,quantity);
         if (!serverResponse.isSuccess()){
             return serverResponse;
         }
-        OrderItem orderItem=(OrderItem)serverResponse.getDate();
-        BigDecimal payment=orderItem.getTotalPrice();
+        List<OrderItem> orderItemList=(List<OrderItem>) serverResponse.getDate();
+        BigDecimal payment=this.getOrderTotalPrice(orderItemList);
+        Integer hotelId=this.getOrderHotelId(orderItemList);
         //生成订单
-        Order order=this.assembleOrder(userId,detailId,checkInDate,leaveDate,payment);
+        Order order=this.assembleOrder(userId,hotelId,detailId,checkInDate,leaveDate,payment);
         if (order==null){
             return ServerResponse.createByErrorMessage("生成订单错误");
         }
-        orderItem.setOrderNo(order.getOrderNo());
-        orderItemMapper.insert(orderItem);
+        if (CollectionUtils.isEmpty(orderItemList)){
+            return ServerResponse.createByErrorMessage("无房间数据");
+        }
+        for (OrderItem orderItem:orderItemList){
+            orderItem.setOrderNo(order.getOrderNo());
+        }
+
+        orderItemMapper.batchInsert(orderItemList);
 
         //减少房间数量
-        this.reduceProductStock(orderItem);
+        this.reduceProductStock(orderItemList);
 
         //返给前端数据
 
-
-
+        OrderVo orderVo=assembleOrderVo(order,orderItemList);
+        return ServerResponse.createBySuccess(orderVo);
     }
 
-    private OrderVo assembleOrderVo(Order order,OrderItem orderItem){
+    private OrderVo assembleOrderVo(Order order,List<OrderItem> orderItemList){
         OrderVo orderVo=new OrderVo();
         orderVo.setPayment(order.getPayment());
         orderVo.setPaymentType(order.getPaymentType());
@@ -93,22 +106,65 @@ public class OrderServiceImpl implements IOrderService {
         orderVo.setStatusDesc(Const.OrderStatusEnum.codeOf(order.getStatus()).getValue());
 
         orderVo.setDetailId(order.getUserDetilsId());
+        orderVo.setHotelId(order.getHotelId());
         Detils detils=detilsMapper.selectByPrimaryKey(order.getUserDetilsId());
 
         if (detils!=null){
             orderVo.setArriveName(detils.getStayName());
+            orderVo.setDetailVo(assembleDetailsVo(detils));
+        }
+
+        orderVo.setPaymentTime(DateTimeUtil.dateToStr(order.getPaymentTime()));
+        orderVo.setAgreeTime(DateTimeUtil.dateToStr(order.getAgreeTime()));
+        orderVo.setEndTime(DateTimeUtil.dateToStr(order.getEndTime()));
+        orderVo.setCreateTime(DateTimeUtil.dateToStr(order.getCreateTime()));
+        orderVo.setCloseTime(DateTimeUtil.dateToStr(order.getCloseTime()));
+
+        orderVo.setImageHost(PropertiesUtil.getProperty("ftp.server.http.prefix"));
+
+        List<OrderItemVo> orderItemVoList =Lists.newArrayList();
+        for (OrderItem orderItem:orderItemList){
+            OrderItemVo orderItemVo=assembleOrderItemVo(orderItem);
+            orderItemVoList.add(orderItemVo);
+        }
+
+
+        orderVo.setOrderItemVoList(orderItemVoList);
+        return orderVo;
+    }
+
+    public OrderItemVo assembleOrderItemVo(OrderItem orderItem){
+        OrderItemVo orderItemVo=new OrderItemVo();
+        orderItemVo.setOrderNo(orderItem.getOrderNo());
+        orderItemVo.setHotelId(orderItem.getHotelId());
+        orderItemVo.setRoomId(orderItem.getRoomId());
+        orderItemVo.setProductImage(orderItem.getProductImage());
+        orderItemVo.setRoomname(orderItem.getRoomname());
+        orderItemVo.setCurrentUnitPrice(orderItem.getCurrentUnitPrice());
+        orderItemVo.setQuantity(orderItem.getQuantity());
+        orderItemVo.setTotalPrice(orderItem.getTotalPrice());
+
+        orderItemVo.setCreateTime(DateTimeUtil.dateToStr(orderItem.getCreateTime()));
+        return orderItemVo;
+    }
+
+    private DetailVo assembleDetailsVo(Detils detils){
+        DetailVo detailVo=new DetailVo();
+        detailVo.setStayName(detils.getStayName());
+        detailVo.setStayCardId(detils.getStayCardId());
+        detailVo.setStayPhone(detils.getStayPhone());
+        return detailVo;
+    }
+
+    private void reduceProductStock(List<OrderItem> orderItemList){
+        for (OrderItem orderItem:orderItemList){
+            Room room=roomMapper.selectByPrimaryKey(orderItem.getRoomId());
+            room.setStock(room.getStock()-orderItem.getQuantity());
+            roomMapper.updateByPrimaryKeySelective(room);
         }
     }
 
-
-
-    private void reduceProductStock(OrderItem orderItem){
-        Room room=roomMapper.selectByPrimaryKey(orderItem.getRoomId());
-        room.setStock(room.getStock()-orderItem.getQuantity());
-        roomMapper.updateByPrimaryKey(room);
-    }
-
-    private Order assembleOrder(Integer userId,Integer detailId,String checkInDate,String leaveDate,BigDecimal payment){
+    private Order assembleOrder(Integer userId,Integer hotelId,Integer detailId,String checkInDate,String leaveDate,BigDecimal payment){
         Order order=new Order();
         long orderNo=this.generateOrderNo();
         order.setOrderNo(orderNo);
@@ -118,6 +174,7 @@ public class OrderServiceImpl implements IOrderService {
 
         order.setUserId(userId);
         order.setUserDetilsId(detailId);
+        order.setHotelId(hotelId);
         order.setCheckinDate(DateTimeUtil.strToDate(checkInDate,DateTimeUtil.DATE_FORMAT));
         order.setLeaveDate(DateTimeUtil.strToDate(leaveDate,DateTimeUtil.DATE_FORMAT));
 
@@ -135,27 +192,106 @@ public class OrderServiceImpl implements IOrderService {
         return currentTime+new Random().nextInt(100);
     }
 
-    private ServerResponse getCartOrderItem(Integer userId,Room room,Integer quantity){
-        if (room==null){
+    private BigDecimal getOrderTotalPrice(List<OrderItem> orderItemList){
+        BigDecimal payment=new BigDecimal("0");
+        for (OrderItem orderItem:orderItemList){
+            payment=BigDecimalUtil.add(payment.doubleValue(),orderItem.getTotalPrice().doubleValue());
+        }
+        return payment;
+    }
+
+    private Integer getOrderHotelId(List<OrderItem> orderItemList){
+        Integer hotelId=new Integer("0");
+        for (OrderItem orderItem:orderItemList){
+            hotelId=orderItem.getHotelId();
+        }
+        return hotelId;
+    }
+
+    private ServerResponse getCartOrderItem(Integer userId,List<Room> roomList,Integer quantity){
+
+        List<OrderItem> orderItemList=Lists.newArrayList();
+        if (CollectionUtils.isEmpty(roomList)){
             return ServerResponse.createByErrorMessage("房间不存在，请稍后重试");
         }
         //校验产品状态和数量
-        OrderItem orderItem=new OrderItem();
-        if (room.getStatus()!=Const.RoomStatusEnum.ON_SALE.getCode()){
-            return ServerResponse.createByErrorMessage("房间:"+room.getName()+"已售完或下架");
+        for (Room roomItem:roomList){
+            OrderItem orderItem=new OrderItem();
+            Room room=roomMapper.selectByPrimaryKey(roomItem.getId());
+            if (room.getStatus()!=Const.RoomStatusEnum.ON_SALE.getCode()){
+                return ServerResponse.createByErrorMessage("房间:"+room.getName()+"不存在或下架");
+            }
+            //校验库存
+            if (quantity>room.getStock()){
+                return ServerResponse.createByErrorMessage("房间:"+room.getName()+"数量不足");
+            }
+            orderItem.setUserId(userId);
+            orderItem.setHotelId(room.getTypeId());
+            orderItem.setRoomId(room.getId());
+            orderItem.setRoomname(room.getName());
+            orderItem.setProductImage(room.getMainImage());
+            orderItem.setCurrentUnitPrice(room.getPrice());
+            orderItem.setQuantity(quantity);
+            orderItem.setTotalPrice(BigDecimalUtil.mul(room.getPrice().doubleValue(),quantity));
+            orderItemList.add(orderItem);
+
         }
-        //校验库存
-        if (quantity>room.getStock()){
-            return ServerResponse.createByErrorMessage("房间:"+room.getName()+"数量不足");
+        return ServerResponse.createBySuccess(orderItemList);
+
+    }
+
+    public ServerResponse<String> cancel(Integer userId,Long orderNo){
+        Order order=orderMapper.selectByUserIdAndOrderNo(userId,orderNo);
+        if (order==null){
+            return ServerResponse.createByErrorMessage("该用户无此订单");
         }
-        orderItem.setUserId(userId);
-        orderItem.setRoomId(room.getId());
-        orderItem.setRoomname(room.getName());
-        orderItem.setProductImage(room.getMainImage());
-        orderItem.setCurrentUnitPrice(room.getPrice());
-        orderItem.setQuantity(quantity);
-        orderItem.setTotalPrice(BigDecimalUtil.mul(room.getPrice().doubleValue(),quantity));
-        return ServerResponse.createBySuccess(orderItem);
+        if (order.getStatus()!=Const.OrderStatusEnum.NO_PAY.getCode()){
+            return ServerResponse.createByErrorMessage("已付款，无法取消订单");
+        }
+        Order updateOrder=new Order();
+        updateOrder.setId(order.getId());
+        updateOrder.setStatus(Const.OrderStatusEnum.CANCELED.getCode());
+
+        int rowCount=orderMapper.updateByPrimaryKeySelective(updateOrder);
+        if (rowCount>0){
+            return ServerResponse.createBySuccess();
+        }
+        return ServerResponse.createByError();
+    }
+
+    public ServerResponse<OrderVo> getOrderDetail(Integer userId,Long orderNo){
+        Order order=orderMapper.selectByUserIdAndOrderNo(userId,orderNo);
+        if (order!=null){
+             List<OrderItem> orderItemList=orderItemMapper.getByOrderNoUserId(orderNo,userId);
+             OrderVo orderVo=assembleOrderVo(order,orderItemList);
+             return ServerResponse.createBySuccess(orderVo);
+        }
+        return ServerResponse.createByErrorMessage("没有找到该订单");
+    }
+
+    public ServerResponse<PageInfo> getOrderList(Integer userId,int pageNum,int pageSize){
+        PageHelper.startPage(pageNum,pageSize);
+        List<Order> orderList=orderMapper.selectByUserId(userId);
+        List<OrderVo> orderVoList=assembleOrderVoList(orderList,userId);
+        PageInfo pageResult=new PageInfo(orderList);
+        pageResult.setList(orderList);
+        return ServerResponse.createBySuccess(pageResult);
+    }
+
+    private List<OrderVo> assembleOrderVoList(List<Order> orderList,Integer userId){
+        List<OrderVo> orderVoList=Lists.newArrayList();
+        for (Order order:orderList){
+            List<OrderItem> orderItemLists=Lists.newArrayList();
+            if (userId==null){
+                //todo管理员查询
+                orderItemLists=orderItemMapper.getByOrderNo(order.getOrderNo());
+            }else {
+                orderItemLists=orderItemMapper.getByOrderNoUserId(order.getOrderNo(),userId);
+            }
+            OrderVo orderVo=assembleOrderVo(order,orderItemLists);
+            orderVoList.add(orderVo);
+        }
+        return orderVoList;
     }
 
 
@@ -336,6 +472,96 @@ public class OrderServiceImpl implements IOrderService {
             return ServerResponse.createBySuccess();
         }
         return ServerResponse.createByError();
+    }
+
+
+
+    //管理员
+    public ServerResponse<PageInfo> manageList(int pageNum,int pageSize){
+        PageHelper.startPage(pageNum,pageSize);
+        List<Order> orderList =orderMapper.selectAllOrder();
+        List<OrderVo> orderVoList=this.assembleOrderVoList(orderList,null);
+        PageInfo pageResult=new PageInfo(orderList);
+        pageResult.setList(orderVoList);
+
+        return ServerResponse.createBySuccess(pageResult);
+    }
+
+    public ServerResponse<OrderVo> manageDetail(Long orderNo){
+        Order order=orderMapper.selectByOrderNo(orderNo);
+        if (order!=null){
+            List<OrderItem> orderItemList=orderItemMapper.getByOrderNo(orderNo);
+            OrderVo orderVo=assembleOrderVo(order,orderItemList);
+            return ServerResponse.createBySuccess(orderVo);
+        }
+        return ServerResponse.createByErrorMessage("订单不存在");
+    }
+
+    public ServerResponse<PageInfo> manageSearch(Long orderNo,int pageNum,int pageSize){
+        PageHelper.startPage(pageNum,pageSize);
+        Order order=orderMapper.selectByOrderNo(orderNo);
+        if (order!=null){
+            List<OrderItem> orderItemList=orderItemMapper.getByOrderNo(orderNo);
+            OrderVo orderVo=assembleOrderVo(order,orderItemList);
+
+            PageInfo pageResult=new PageInfo(Lists.newArrayList(order));
+            pageResult.setList(Lists.newArrayList(orderVo));
+            return ServerResponse.createBySuccess(pageResult);
+        }
+        return ServerResponse.createByErrorMessage("订单不存在");
+    }
+
+    //酒店端
+    public ServerResponse<PageInfo> hotelList(Integer hotelId,int pageNum,int pageSize){
+        PageHelper.startPage(pageNum,pageSize);
+        List<Order> orderList =orderMapper.selectOrderByHotelId(hotelId);
+        List<OrderVo> orderVoList=this.assembleOrderVoList(orderList,null);
+        PageInfo pageResult=new PageInfo(orderList);
+        pageResult.setList(orderVoList);
+
+        return ServerResponse.createBySuccess(pageResult);
+    }
+
+    public ServerResponse<OrderVo> hotelDetail(Integer hotelId,Long orderNo){
+        Order order=orderMapper.selectByOrderNo(orderNo);
+
+        if (order!=null&&order.getHotelId()==hotelId){
+            List<OrderItem> orderItemList=orderItemMapper.getByOrderNo(orderNo);
+            OrderVo orderVo=assembleOrderVo(order,orderItemList);
+            return ServerResponse.createBySuccess(orderVo);
+        }
+        return ServerResponse.createByErrorMessage("订单不存在");
+    }
+
+    public ServerResponse<PageInfo> hotelSearch(Integer hotelId,Long orderNo,int pageNum,int pageSize){
+        PageHelper.startPage(pageNum,pageSize);
+        Order order=orderMapper.selectByOrderNo(orderNo);
+        if (order!=null&&order.getHotelId()==hotelId){
+            List<OrderItem> orderItemList=orderItemMapper.getByOrderNo(orderNo);
+            OrderVo orderVo=assembleOrderVo(order,orderItemList);
+
+            PageInfo pageResult=new PageInfo(Lists.newArrayList(order));
+            pageResult.setList(Lists.newArrayList(orderVo));
+            return ServerResponse.createBySuccess(pageResult);
+        }
+        return ServerResponse.createByErrorMessage("订单不存在");
+    }
+
+    public ServerResponse<String> hotelAgree(Integer userId, Long orderNo){
+        Order order=orderMapper.selectByOrderNo(orderNo);
+        Hotels hotels=hotelsMapper.selectByPrimaryKey(order.getHotelId());
+        if (hotels.getUserId()!=userId){
+            return ServerResponse.createByErrorMessage("不是该酒店订单");
+        }
+        if (order!=null){
+            if (order.getStatus()==Const.OrderStatusEnum.PAID.getCode()){
+                order.setStatus(Const.OrderStatusEnum.SHIPPED.getCode());
+                order.setAgreeTime(new Date());
+                orderMapper.updateByPrimaryKeySelective(order);
+                return ServerResponse.createBySuccessMessage("酒店已确认订单");
+            }
+        }
+        return ServerResponse.createByErrorMessage("订单不存在");
     }
 }
 

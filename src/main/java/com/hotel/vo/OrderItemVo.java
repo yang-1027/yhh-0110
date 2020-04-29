@@ -1,5 +1,7 @@
 package com.hotel.vo;
 
+import com.sun.prism.shader.AlphaOne_RadialGradient_AlphaTest_Loader;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -13,6 +15,8 @@ public class OrderItemVo {
 
     private Long orderNo;
 
+    private Integer hotelId;
+
     private Integer roomId;
 
     private String roomname;
@@ -25,7 +29,7 @@ public class OrderItemVo {
 
     private BigDecimal totalPrice;
 
-    private Date createTime;
+    private String createTime;
 
     public Long getOrderNo() {
         return orderNo;
@@ -33,6 +37,14 @@ public class OrderItemVo {
 
     public void setOrderNo(Long orderNo) {
         this.orderNo = orderNo;
+    }
+
+    public Integer getHotelId() {
+        return hotelId;
+    }
+
+    public void setHotelId(Integer hotelId) {
+        this.hotelId = hotelId;
     }
 
     public Integer getRoomId() {
@@ -83,11 +95,11 @@ public class OrderItemVo {
         this.totalPrice = totalPrice;
     }
 
-    public Date getCreateTime() {
+    public String  getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(String  createTime) {
         this.createTime = createTime;
     }
 }

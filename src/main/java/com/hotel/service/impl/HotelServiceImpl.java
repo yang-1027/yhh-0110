@@ -280,6 +280,14 @@ public class HotelServiceImpl implements IHotelService {
 
     }
 
+    public ServerResponse checkHotelUser(Integer userId,Integer hotelId){
+        Integer integer=hotelsMapper.selectUserByHotelId(hotelId);
+        if (userId==integer){
+            return ServerResponse.createBySuccess();
+        }
+        return ServerResponse.createByError();
+    }
+
 //    ServerResponse HotelIsUser(Integer hotelId,Integer userId){
 //        int
 //    }

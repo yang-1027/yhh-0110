@@ -26,6 +26,8 @@ public class Order {
 
     private Date paymentTime;
 
+    private Date agreeTime;
+
     private Date endTime;
 
     private Date closeTime;
@@ -34,7 +36,7 @@ public class Order {
 
     private Date updateTime;
 
-    public Order(Integer id, Long orderNo, Integer userId, Integer userDetilsId, Integer hotelId, BigDecimal payment, Integer paymentType, Date checkinDate, Date leaveDate, Integer status, Date paymentTime, Date endTime, Date closeTime, Date createTime, Date updateTime) {
+    public Order(Integer id, Long orderNo, Integer userId, Integer userDetilsId, Integer hotelId, BigDecimal payment, Integer paymentType, Date checkinDate, Date leaveDate, Integer status, Date paymentTime, Date agreeTime,Date endTime, Date closeTime, Date createTime, Date updateTime) {
         this.id = id;
         this.orderNo = orderNo;
         this.userId = userId;
@@ -46,6 +48,7 @@ public class Order {
         this.leaveDate = leaveDate;
         this.status = status;
         this.paymentTime = paymentTime;
+        this.agreeTime=agreeTime;
         this.endTime = endTime;
         this.closeTime = closeTime;
         this.createTime = createTime;
@@ -142,6 +145,14 @@ public class Order {
 
     public void setPaymentTime(Date paymentTime) {
         this.paymentTime = paymentTime;
+    }
+
+    public Date getAgreeTime() {
+        return agreeTime;
+    }
+
+    public void setAgreeTime(Date agreeTime) {
+        this.agreeTime = agreeTime;
     }
 
     public Date getEndTime() {

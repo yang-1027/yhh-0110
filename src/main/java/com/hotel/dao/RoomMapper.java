@@ -22,4 +22,7 @@ public interface RoomMapper {
     List<Room> selectRoomList(Integer typeId);
 
     int hotelSetRoomStatus(@Param("roomId") Integer roomId, @Param("status") Integer status, @Param("hotelId") Integer hotelId);
+
+    List<Room> selectRoomListById(Integer roomId);
+
 }

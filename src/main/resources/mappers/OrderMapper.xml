@@ -14,6 +14,7 @@
       <arg column="leave_date" jdbcType="DATE" javaType="java.util.Date" />
       <arg column="status" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="payment_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="agree_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
       <arg column="end_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
       <arg column="close_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
       <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
@@ -22,7 +23,7 @@
   </resultMap>
   <sql id="Base_Column_List" >
     id, order_no, user_id, user_detils_id, hotel_id, payment, payment_type, checkIn_date, 
-    leave_date, status, payment_time, end_time, close_time, create_time, update_time
+    leave_date, status, payment_time, agree_time, end_time, close_time, create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -38,13 +39,13 @@
     insert into hotel_order (id, order_no, user_id, 
       user_detils_id, hotel_id, payment, 
       payment_type, checkIn_date, leave_date, 
-      status, payment_time, end_time, 
+      status, payment_time, agree_time, end_time,
       close_time, create_time, update_time
       )
     values (#{id,jdbcType=INTEGER}, #{orderNo,jdbcType=BIGINT}, #{userId,jdbcType=INTEGER}, 
       #{userDetilsId,jdbcType=INTEGER}, #{hotelId,jdbcType=INTEGER}, #{payment,jdbcType=DECIMAL}, 
       #{paymentType,jdbcType=INTEGER}, #{checkinDate,jdbcType=DATE}, #{leaveDate,jdbcType=DATE},
-      #{status,jdbcType=INTEGER}, #{paymentTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, 
+      #{status,jdbcType=INTEGER}, #{paymentTime,jdbcType=TIMESTAMP}, #{agree_time,jdbcType=TIMESTAMP},#{endTime,jdbcType=TIMESTAMP},
       #{closeTime,jdbcType=TIMESTAMP}, now(), now()
       )
   </insert>
@@ -83,6 +84,9 @@
       </if>
       <if test="paymentTime != null" >
         payment_time,
+      </if>
+      <if test="agreeTime != null" >
+        agree_time,
       </if>
       <if test="endTime != null" >
         end_time,
@@ -131,6 +135,9 @@
       <if test="paymentTime != null" >
         #{paymentTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="agreeTime != null" >
+        #{agreeTime,jdbcType=TIMESTAMP},
+      </if>
       <if test="endTime != null" >
         #{endTime,jdbcType=TIMESTAMP},
       </if>
@@ -178,6 +185,9 @@
       <if test="paymentTime != null" >
         payment_time = #{paymentTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="agreeTime != null" >
+        agree_time = #{agreeTime,jdbcType=TIMESTAMP},
+      </if>
       <if test="endTime != null" >
         end_time = #{endTime,jdbcType=TIMESTAMP},
       </if>
@@ -205,6 +215,7 @@
       leave_date = #{leaveDate,jdbcType=DATE},
       status = #{status,jdbcType=INTEGER},
       payment_time = #{paymentTime,jdbcType=TIMESTAMP},
+      agree_time = #{agreeTime,jdbcType=TIMESTAMP},
       end_time = #{endTime,jdbcType=TIMESTAMP},
       close_time = #{closeTime,jdbcType=TIMESTAMP},
       create_time = #{createTime,jdbcType=TIMESTAMP},
@@ -224,5 +235,28 @@
     <include refid="Base_Column_List"></include>
     from hotel_order
     where order_no=#{orderNo}
+  </select>
+
+  <select id="selectByUserId" resultMap="BaseResultMap" parameterType="int">
+    select
+    <include refid="Base_Column_List"></include>
+    from hotel_order
+    where user_id=#{userId}
+    order by create_time desc
+  </select>
+
+  <select id="selectAllOrder" resultMap="BaseResultMap">
+    select hotel_id,<include refid="Base_Column_List"></include>
+    from hotel_order
+    group by hotel_id
+    order by create_time desc
+
+  </select>
+
+  <select id="selectOrderByHotelId" resultMap="BaseResultMap" parameterType="int">
+    select <include refid="Base_Column_List"></include>
+    from hotel_order
+    where hotel_id=#{hotelId}
+    order by create_time desc
   </select>
 </mapper>
